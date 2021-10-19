@@ -7,10 +7,15 @@ const {
   mainnetAddresses,
 } = require('@poofcash/poof-kit')
 const { deployments: v2Deployments } = require('@poofcash/poof-v2-kit')
+const {
+  deployments: v2LegacyDeployments,
+} = require('@poofcash/poof-v2-kit-legacy')
 
 const netId = Number(process.env.NET_ID) || 42220
 const poof = netId === 42220 ? mainnetAddresses : alfajoresAddresses
-const pools = v2Deployments
+const pools = {
+  [netId]: [...v2Deployments[netId], ...v2LegacyDeployments[netId]],
+}
 const treeAddresses = [
   ...pools[netId].map(p => p.poolAddress),
   ...(netId === 42220 ? [poof.PoofMiner.address] : []),

@@ -59,6 +59,15 @@ const addressType = {
 }
 const proofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{512}$' }
 const v2ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
+const v3WithdrawProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
+const v3InputRootProofType = {
+  type: 'string',
+  pattern: '^0x[a-fA-F0-9]{1600}$',
+}
+const v3OutputRootRootProofType = {
+  type: 'string',
+  pattern: '^0x[a-fA-F0-9]{1600}$',
+}
 const rewardArgType = { type: 'string', pattern: '^0x[a-fA-F0-9]{2176}$' }
 const encryptedAccountType = { type: 'string', pattern: '^0x[a-fA-F0-9]{392}$' }
 const encryptedAccountV2Type = {
@@ -266,11 +275,82 @@ const withdrawV2Schema = {
   required: ['proof', 'contract', 'args'],
 }
 
+const withdrawV3Args = {
+  ...withdrawArgs,
+  properties: {
+    ...withdrawArgs.properties,
+    debt: bytes32Type,
+    unitPerUnderlying: bytes32Type,
+    extData: {
+      type: 'object',
+      properties: {
+        fee: bytes32Type,
+        recipient: addressType,
+        relayer: relayerType,
+        encryptedAccount: encryptedAccountV2Type,
+      },
+      additionalProperties: false,
+      required: ['fee', 'relayer', 'encryptedAccount', 'recipient'],
+    },
+    account: {
+      type: 'object',
+      properties: {
+        inputRoot: bytes32Type,
+        inputNullifierHash: bytes32Type,
+        inputAccountHash: bytes32Type,
+        outputRoot: bytes32Type,
+        outputPathIndices: bytes32Type,
+        outputCommitment: bytes32Type,
+        outputAccountHash: bytes32Type,
+      },
+      additionalProperties: false,
+      required: [
+        'inputRoot',
+        'inputNullifierHash',
+        'inputAccountHash',
+        'outputRoot',
+        'outputPathIndices',
+        'outputCommitment',
+        'outputAccountHash',
+      ],
+    },
+  },
+  required: [
+    'amount',
+    'debt',
+    'unitPerUnderlying',
+    'extDataHash',
+    'extData',
+    'account',
+  ],
+}
+
+const withdrawV3Schema = {
+  type: 'object',
+  properties: {
+    contract: poolType,
+    proofs: {
+      type: 'array',
+      maxItems: 3,
+      mintItems: 3,
+      items: [
+        v3WithdrawProofType,
+        v3InputRootProofType,
+        v3OutputRootRootProofType,
+      ],
+    },
+    args: withdrawV3Args,
+  },
+  additionalProperties: false,
+  required: ['proofs', 'contract', 'args'],
+}
+
 const validateTornadoWithdraw = ajv.compile(poofWithdrawSchema)
 const validateMiningReward = ajv.compile(miningRewardSchema)
 const validateBatchReward = ajv.compile(batchRewardSchema)
 const validateMiningWithdraw = ajv.compile(miningWithdrawSchema)
 const validateWithdrawV2 = ajv.compile(withdrawV2Schema)
+const validateWithdrawV3 = ajv.compile(withdrawV3Schema)
 
 function getInputError(validator, data) {
   validator(data)
@@ -301,6 +381,10 @@ function getWithdrawV2InputError(data) {
   return getInputError(validateWithdrawV2, data)
 }
 
+function getWithdrawV3InputError(data) {
+  return getInputError(validateWithdrawV3, data)
+}
+
 module.exports = {
   getTornadoWithdrawInputError,
   getMiningRewardInputError,
@@ -308,4 +392,5 @@ module.exports = {
   getMiningWithdrawInputError,
 
   getWithdrawV2InputError,
+  getWithdrawV3InputError,
 }

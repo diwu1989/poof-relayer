@@ -10,6 +10,7 @@ const tornadoProxyABI = require('../abis/tornadoProxyABI.json')
 const miningABI = require('../abis/mining.abi.json')
 const swapABI = require('../abis/swap.abi.json')
 const poofABI = require('../abis/poof.abi.json')
+const poofV3ABI = require('../abis/poofv3.abi.json')
 const { queue } = require('./queue')
 const {
   poseidonHash2,
@@ -68,7 +69,7 @@ const getFetchTree = treeAddress => {
 
     // Check if there is a tx to replace
     if (currentTx && currentJob) {
-      const { proof, args } = currentJob.data
+      const { proof, proofs, args } = currentJob.data
       if (toBN(args.account.inputRoot).eq(toBN(trees[treeAddress].root()))) {
         console.log(
           'Account root is up to date. Skipping Root Update operation...',
@@ -82,7 +83,9 @@ const getFetchTree = treeAddress => {
 
       if (
         isMiner &&
-        ['MINING_REWARD', 'MINING_WITHDRAW'].includes(currentJob.data.type)
+        [jobType.MINING_REWARD, jobType.MINING_WITHDRAW].includes(
+          currentJob.data.type,
+        )
       ) {
         const update = await controllerV1.treeUpdate(
           args.account.outputCommitment,
@@ -96,7 +99,7 @@ const getFetchTree = treeAddress => {
             update.proof,
             update.args,
           )
-        } else if (currentJob.data.type === 'MINING_WITHDRAW') {
+        } else if (currentJob.data.type === jobType.MINING_WITHDRAW) {
           currentTx = minerContract.methods.withdraw(
             proof,
             args,
@@ -108,14 +111,13 @@ const getFetchTree = treeAddress => {
       } else if (
         currentJob.data.contract.toLowerCase() === treeAddress.toLowerCase()
       ) {
-        const contract = new web3.eth.Contract(poofABI, treeAddress)
         const update = await controllerV2.treeUpdate(
           contract,
           args.account.outputCommitment,
           trees[treeAddress],
         )
-
         if (currentJob.data.type === jobType.WITHDRAW_V2) {
+          const contract = new web3.eth.Contract(poofABI, treeAddress)
           currentTx = contract.methods.withdraw(
             proof,
             args,
@@ -123,8 +125,25 @@ const getFetchTree = treeAddress => {
             update.args,
           )
         } else if (currentJob.data.type === jobType.MINT_V2) {
+          const contract = new web3.eth.Contract(poofABI, treeAddress)
           currentTx = contract.methods.mint(
             proof,
+            args,
+            update.proof,
+            update.args,
+          )
+        } else if (currentJob.data.type === jobType.WITHDRAW_V3) {
+          const contract = new web3.eth.Contract(poofV3ABI, treeAddress)
+          currentTx = contract.methods.withdraw(
+            proofs,
+            args,
+            update.proof,
+            update.args,
+          )
+        } else if (currentJob.data.type === jobType.MINT_V3) {
+          const contract = new web3.eth.Contract(poofV3ABI, treeAddress)
+          currentTx = contract.methods.mint(
+            proofs,
             args,
             update.proof,
             update.args,
@@ -181,7 +200,14 @@ function checkFee({ data }) {
     return checkPoofFee(data)
   } else if (data.type === jobType.BATCH_REWARD) {
     return checkBatchMiningFee(data)
-  } else if ([jobType.WITHDRAW_V2, jobType.MINT_V2].includes(data.type)) {
+  } else if (
+    [
+      jobType.WITHDRAW_V2,
+      jobType.MINT_V2,
+      jobType.WITHDRAW_V3,
+      jobType.MINT_V3,
+    ].includes(data.type)
+  ) {
     return checkWithdrawV2Fee(data)
   }
   return checkMiningFee(data)
@@ -271,6 +297,10 @@ async function checkWithdrawV2Fee({ args, contract }) {
   )
 
   const celoPrice = await redis.hget('prices', symbol.toLowerCase())
+  const gasPrice = Math.max(
+    (await redis.hget('gasPrices', 'min')) || 0.5,
+    maxGasPrice,
+  ).toString()
   const feePercent = toBN(fromDecimals(amount, decimals))
     .mul(toBN(poofServiceFee * 1e10))
     .div(toBN(1e10 * 100))
@@ -281,6 +311,7 @@ async function checkWithdrawV2Fee({ args, contract }) {
     debt.mul(toBN(unitPerUnderlying)).add(amount).sub(fee),
     Number(celoPrice),
     Number(poofServiceFee),
+    gasPrice,
     gasLimits[jobType.WITHDRAW_V2],
   )
   console.log(
@@ -314,6 +345,12 @@ function getTxObject({ data }) {
   } else if (data.type === jobType.MINT_V2) {
     const contract = new web3.eth.Contract(poofABI, data.contract)
     return contract.methods.mint(data.proof, data.args)
+  } else if (data.type === jobType.WITHDRAW_V3) {
+    const contract = new web3.eth.Contract(poofV3ABI, data.contract)
+    return contract.methods.withdraw(data.proofs, data.args)
+  } else if (data.type === jobType.MINT_V3) {
+    const contract = new web3.eth.Contract(poofV3ABI, data.contract)
+    return contract.methods.mint(data.proofs, data.args)
   } else if (data.type === jobType.BATCH_REWARD) {
     return minerContract.methods.batchReward(data.rewardArgs)
   } else {
@@ -346,7 +383,7 @@ async function processJob(job) {
     console.log(`Start processing a new ${job.data.type} job #${job.id}`)
     await submitTx(job)
   } catch (e) {
-    console.error('processJob', e.message)
+    console.error('processJob', e, e.message)
     await updateStatus(status.FAILED)
     throw e
   }
@@ -359,10 +396,15 @@ async function submitTx(job, retry = 0) {
   const isWithdraw = [jobType.POOF_WITHDRAW, jobType.RELAY].includes(
     job.data.type,
   )
-  const isV2 = [jobType.WITHDRAW_V2, jobType.MINT_V2].includes(job.data.type)
+  const isV2Plus = [
+    jobType.WITHDRAW_V2,
+    jobType.MINT_V2,
+    jobType.WITHDRAW_V3,
+    jobType.MINT_V3,
+  ].includes(job.data.type)
 
   if (!isWithdraw) {
-    if (isV2) {
+    if (isV2Plus) {
       await getFetchTree(job.data.contract)()
     } else {
       await getFetchTree(poof.PoofMiner.address)()
@@ -377,16 +419,15 @@ async function submitTx(job, retry = 0) {
     'gwei',
   )
   try {
-    const gas = await currentTx.estimateGas({
+    const params = {
       from: account,
       gasPrice,
       value: job.data.args[5],
-    })
+    }
+    const gas = await currentTx.estimateGas(params)
     const receipt = await currentTx.send({
-      from: account,
-      gasPrice,
+      ...params,
       gas,
-      value: job.data.args[5],
     })
     await updateTxHash(receipt.transactionHash)
     console.log('Mined in block', receipt.blockNumber)

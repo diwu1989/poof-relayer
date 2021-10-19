@@ -6,6 +6,8 @@ const jobType = Object.freeze({
   MINING_WITHDRAW: 'MINING_WITHDRAW',
   WITHDRAW_V2: 'WITHDRAW_V2',
   MINT_V2: 'MINT_V2',
+  WITHDRAW_V3: 'WITHDRAW_V3',
+  MINT_V3: 'MINT_V3',
 })
 
 const status = Object.freeze({
