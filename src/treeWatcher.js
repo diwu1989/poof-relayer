@@ -9,6 +9,7 @@ const wsUrlPool = wsRpcUrl.split(',')
 const PoofBaseABI = require('../abis/poofBase.abi.json')
 
 let wsIdx = 0
+let failedInitRetries = 0
 let web3
 
 const trees = {}
@@ -170,6 +171,10 @@ const getInit = treeAddress => {
       await updateRedis(contract)
     } catch (e) {
       console.error('error on init treeWatcher', e.message)
+      if (failedInitRetries++ > 3) {
+        console.error('init failed too many times')
+        process.exit(1)
+      }
       setTimeout(init, 3000)
     }
   }
