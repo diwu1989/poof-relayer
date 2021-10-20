@@ -553,10 +553,10 @@
     web3-utils "^1.5.1"
     yargs "^17.0.1"
 
-"@poofcash/poof-v2-kit@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@poofcash/poof-v2-kit/-/poof-v2-kit-0.2.0.tgz#035052c91e78a982366498d8f1e2d5789ada0a56"
-  integrity sha512-04rOJ69pT0XOFQl4Mkc5eKUrVa1z4isF5dn7G/EBc5OGdPSlpx0IhwhKcwXJkt0omVKCcb/rr5Y8Ow30hXU3Zg==
+"@poofcash/poof-v2-kit@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@poofcash/poof-v2-kit/-/poof-v2-kit-0.2.2.tgz#87f1f8190812a9f42493f794e9e8db2ffa9e44b5"
+  integrity sha512-jINIbN8wwBTTcvkJAWCHWtyP0/bs3Hr2J67qIv1Smkxkz3gjX17UNc56DrGa2lrEJbuPeftQEHGLJxMxVUaPmA==
   dependencies:
     "@typechain/web3-v1" "^3.0.0"
     "@types/bn.js" "^4.11.6"
