@@ -111,6 +111,7 @@ const getFetchTree = treeAddress => {
       } else if (
         currentJob.data.contract.toLowerCase() === treeAddress.toLowerCase()
       ) {
+        const contract = new web3.eth.Contract(poofABI, treeAddress)
         const update = await controllerV2.treeUpdate(
           contract,
           args.account.outputCommitment,
