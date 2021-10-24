@@ -298,8 +298,8 @@ async function checkWithdrawV2Fee({ args, contract }) {
   )
 
   const celoPrice = await redis.hget('prices', symbol.toLowerCase())
-  const gasPrice = Math.max(
-    (await redis.hget('gasPrices', 'min')) || 0.5,
+  const gasPrice = Math.min(
+    await redis.hget('gasPrices', 'min'),
     maxGasPrice,
   ).toString()
   const feePercent = toBN(fromDecimals(amount, decimals))
@@ -413,7 +413,7 @@ async function submitTx(job, retry = 0) {
   }
 
   const gasPrice = toWei(
-    Math.max(
+    Math.min(
       (await redis.hget('gasPrices', 'min')) || 0.5,
       maxGasPrice,
     ).toString(),
@@ -425,10 +425,10 @@ async function submitTx(job, retry = 0) {
       gasPrice,
       value: job.data.args[5],
     }
-    const gas = await currentTx.estimateGas(params)
+    // const gas = await currentTx.estimateGas(params)
     const receipt = await currentTx.send({
       ...params,
-      gas,
+      gas: 2e6,
     })
     await updateTxHash(receipt.transactionHash)
     console.log('Mined in block', receipt.blockNumber)

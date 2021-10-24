@@ -43,7 +43,7 @@ module.exports = {
     [jobType.POOF_WITHDRAW]: 350000,
     [jobType.MINING_REWARD]: 455000,
     [jobType.MINING_WITHDRAW]: 400000,
-    [jobType.WITHDRAW_V2]: 1e6,
+    [jobType.WITHDRAW_V2]: 2e6,
   },
   maxGasPrice: process.env.MAX_GAS_PRICE,
   minimumBalance: '1000000000000000000',
