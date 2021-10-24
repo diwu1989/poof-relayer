@@ -34,7 +34,7 @@ async function getGasPrices() {
     } catch (e) {
       console.error(`cant get minimum gas price: ${e.toString()}`)
     }
-  } else if ([4002, 250].includes(netId)) {
+  } else {
     gasPrices['min'] = Number(fromWei(await web3.eth.getGasPrice(), 'gwei'))
   }
   return gasPrices

@@ -14,12 +14,15 @@ const {
 const netId = Number(process.env.NET_ID) || 42220
 const poof = netId === 42220 ? mainnetAddresses : alfajoresAddresses
 const pools = {
-  [netId]: [...v2Deployments[netId], ...v2LegacyDeployments[netId]],
+  [netId]: [...v2Deployments[netId], ...(v2LegacyDeployments[netId] || [])],
 }
 const treeAddresses = [
   ...pools[netId].map(p => p.poolAddress),
   ...(netId === 42220 ? [poof.PoofMiner.address] : []),
 ]
+const creationBlockLookup = v2Deployments[netId].reduce((acc, c) => {
+  return { ...acc, [c.poolAddress]: c.creationBlock }
+}, {})
 
 module.exports = {
   netId,
@@ -46,4 +49,5 @@ module.exports = {
   minimumBalance: '1000000000000000000',
   pools,
   treeAddresses,
+  creationBlockLookup,
 }
