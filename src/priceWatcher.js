@@ -21,6 +21,7 @@ async function main() {
     ftm: 1.0,
     avax: 1.0,
     matic: 1.0,
+    eth: 1.0,
   }
   if ([42220, 44787].includes(netId)) {
     try {
