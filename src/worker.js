@@ -113,7 +113,6 @@ const getFetchTree = treeAddress => {
       ) {
         const contract = new web3.eth.Contract(poofABI, treeAddress)
         const update = await controllerV2.treeUpdate(
-          contract,
           args.account.outputCommitment,
           trees[treeAddress],
         )
@@ -185,8 +184,9 @@ async function start() {
     controllerV2 = new ControllerV2({
       snarkjs,
       provingKeys: {
-        treeUpdateWasm: fs.readFileSync('./keys/TreeUpdate.wasm'),
-        treeUpdateZkey: fs.readFileSync('./keys/TreeUpdate_circuit_final.zkey'),
+        getTreeUpdateWasm: () => fs.readFileSync('./keys/TreeUpdate.wasm'),
+        getTreeUpdateZkey: () =>
+          fs.readFileSync('./keys/TreeUpdate_circuit_final.zkey'),
       },
     })
     queue.process(processJob)
@@ -314,6 +314,7 @@ async function checkWithdrawV2Fee({ args, contract }) {
     Number(poofServiceFee),
     gasPrice,
     gasLimits[jobType.WITHDRAW_V2],
+    toBN(unitPerUnderlying),
   )
   console.log(
     'sent fee, desired fee, feePercent',
@@ -428,7 +429,7 @@ async function submitTx(job, retry = 0) {
     // const gas = await currentTx.estimateGas(params)
     const receipt = await currentTx.send({
       ...params,
-      gas: 2e6,
+      gas: 1.7e6,
     })
     await updateTxHash(receipt.transactionHash)
     console.log('Mined in block', receipt.blockNumber)
