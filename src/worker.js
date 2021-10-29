@@ -182,7 +182,7 @@ async function start() {
     })
     await controllerV1.init()
     controllerV2 = new ControllerV2({
-      snarkjs,
+      getSnarkJs: () => snarkjs,
       provingKeys: {
         getTreeUpdateWasm: () => fs.readFileSync('./keys/TreeUpdate.wasm'),
         getTreeUpdateZkey: () =>
