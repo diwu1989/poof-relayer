@@ -4,7 +4,7 @@ services:
   server:
     image: poofcash/relayer:mining
     restart: always
-    command: server
+    command: node src/server.js
     env_file: .env
     environment:
       REDIS_URL: redis://redis/0
@@ -14,7 +14,7 @@ services:
   treeWatcher:
     image: poofcash/relayer:mining
     restart: always
-    command: treeWatcher
+    command: node src/treeWatcher
     env_file: .env
     environment:
       REDIS_URL: redis://redis/0
@@ -23,7 +23,7 @@ services:
   priceWatcher:
     image: poofcash/relayer:mining
     restart: always
-    command: priceWatcher
+    command: node src/priceWatcher
     env_file: .env
     environment:
       REDIS_URL: redis://redis/0
@@ -32,7 +32,7 @@ services:
   gasWatcher:
     image: poofcash/relayer
     restart: always
-    command: gasWatcher
+    command: node src/gasWatcher
     env_file: .env
     environment:
       REDIS_URL: redis://redis/0
@@ -41,7 +41,7 @@ services:
   healthWatcher:
     image: poofcash/relayer:mining
     restart: always
-    command: healthWatcher
+    command: node src/healthWatcher
     env_file: .env
     environment:
       REDIS_URL: redis://redis/0
@@ -50,7 +50,7 @@ services:
   worker1:
     image: poofcash/relayer:mining
     restart: always
-    command: worker
+    command: node src/worker
     env_file: .env
     environment:
       REDIS_URL: redis://redis/0
@@ -59,7 +59,7 @@ services:
   #  worker2:
   #    image: poofcash/relayer:mining
   #    restart: always
-  #    command: worker
+  #    command: node src/worker
   #    env_file: .env
   #    environment:
   #      PRIVATE_KEY: qwe
