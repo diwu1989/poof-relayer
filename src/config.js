@@ -14,12 +14,15 @@ const {
 const netId = Number(process.env.NET_ID) || 42220
 const poof = netId === 42220 ? mainnetAddresses : alfajoresAddresses
 const pools = {
-  [netId]: [...v2Deployments[netId], ...v2LegacyDeployments[netId]],
+  [netId]: [...v2Deployments[netId], ...(v2LegacyDeployments[netId] || [])],
 }
 const treeAddresses = [
   ...pools[netId].map(p => p.poolAddress),
   ...(netId === 42220 ? [poof.PoofMiner.address] : []),
 ]
+const creationBlockLookup = v2Deployments[netId].reduce((acc, c) => {
+  return { ...acc, [c.poolAddress]: c.creationBlock }
+}, {})
 
 module.exports = {
   netId,
@@ -40,10 +43,11 @@ module.exports = {
     [jobType.POOF_WITHDRAW]: 350000,
     [jobType.MINING_REWARD]: 455000,
     [jobType.MINING_WITHDRAW]: 400000,
-    [jobType.WITHDRAW_V2]: 1e6,
+    [jobType.WITHDRAW_V2]: 2e6,
   },
   maxGasPrice: process.env.MAX_GAS_PRICE,
   minimumBalance: '1000000000000000000',
   pools,
   treeAddresses,
+  creationBlockLookup,
 }

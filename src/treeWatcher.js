@@ -1,5 +1,11 @@
 const MerkleTree = require('fixed-merkle-tree')
-const { redisUrl, wsRpcUrl, treeAddresses, poof } = require('./config')
+const {
+  redisUrl,
+  wsRpcUrl,
+  treeAddresses,
+  poof,
+  creationBlockLookup,
+} = require('./config')
 const { poseidonHash2, poseidonHashTorn2 } = require('./utils')
 const { toBN } = require('web3-utils')
 const Redis = require('ioredis')
@@ -9,6 +15,7 @@ const wsUrlPool = wsRpcUrl.split(',')
 const PoofBaseABI = require('../abis/poofBase.abi.json')
 
 let wsIdx = 0
+let failedInitRetries = 0
 let web3
 
 const trees = {}
@@ -146,7 +153,11 @@ const getInit = treeAddress => {
 
       const block = await web3.eth.getBlockNumber()
       const contract = new web3.eth.Contract(PoofBaseABI, treeAddress)
-      const events = await fetchEvents(contract, 0, block)
+      const events = await fetchEvents(
+        contract,
+        creationBlockLookup[treeAddress] || 0,
+        block,
+      )
       // TODO: HARDCODED 20
       trees[treeAddress] = new MerkleTree(20, events, {
         hashFunction:
@@ -170,6 +181,10 @@ const getInit = treeAddress => {
       await updateRedis(contract)
     } catch (e) {
       console.error('error on init treeWatcher', e.message)
+      if (failedInitRetries++ > 3) {
+        console.error('init failed too many times')
+        process.exit(1)
+      }
       setTimeout(init, 3000)
     }
   }

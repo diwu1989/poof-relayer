@@ -111,8 +111,8 @@ const getFetchTree = treeAddress => {
       } else if (
         currentJob.data.contract.toLowerCase() === treeAddress.toLowerCase()
       ) {
+        const contract = new web3.eth.Contract(poofABI, treeAddress)
         const update = await controllerV2.treeUpdate(
-          contract,
           args.account.outputCommitment,
           trees[treeAddress],
         )
@@ -182,10 +182,11 @@ async function start() {
     })
     await controllerV1.init()
     controllerV2 = new ControllerV2({
-      snarkjs,
+      getSnarkJs: () => snarkjs,
       provingKeys: {
-        treeUpdateWasm: fs.readFileSync('./keys/TreeUpdate.wasm'),
-        treeUpdateZkey: fs.readFileSync('./keys/TreeUpdate_circuit_final.zkey'),
+        getTreeUpdateWasm: () => fs.readFileSync('./keys/TreeUpdate.wasm'),
+        getTreeUpdateZkey: () =>
+          fs.readFileSync('./keys/TreeUpdate_circuit_final.zkey'),
       },
     })
     queue.process(processJob)
@@ -297,8 +298,8 @@ async function checkWithdrawV2Fee({ args, contract }) {
   )
 
   const celoPrice = await redis.hget('prices', symbol.toLowerCase())
-  const gasPrice = Math.max(
-    (await redis.hget('gasPrices', 'min')) || 0.5,
+  const gasPrice = Math.min(
+    await redis.hget('gasPrices', 'min'),
     maxGasPrice,
   ).toString()
   const feePercent = toBN(fromDecimals(amount, decimals))
@@ -313,6 +314,7 @@ async function checkWithdrawV2Fee({ args, contract }) {
     Number(poofServiceFee),
     gasPrice,
     gasLimits[jobType.WITHDRAW_V2],
+    toBN(unitPerUnderlying),
   )
   console.log(
     'sent fee, desired fee, feePercent',
@@ -412,7 +414,7 @@ async function submitTx(job, retry = 0) {
   }
 
   const gasPrice = toWei(
-    Math.max(
+    Math.min(
       (await redis.hget('gasPrices', 'min')) || 0.5,
       maxGasPrice,
     ).toString(),
@@ -424,10 +426,10 @@ async function submitTx(job, retry = 0) {
       gasPrice,
       value: job.data.args[5],
     }
-    const gas = await currentTx.estimateGas(params)
+    // const gas = await currentTx.estimateGas(params)
     const receipt = await currentTx.send({
       ...params,
-      gas,
+      gas: 1.7e6,
     })
     await updateTxHash(receipt.transactionHash)
     console.log('Mined in block', receipt.blockNumber)

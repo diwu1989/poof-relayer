@@ -16,6 +16,13 @@ const web3 = new Web3(
 const kit = newKitFromWeb3(web3)
 
 async function main() {
+  const nativePrices = {
+    celo: 1.0,
+    ftm: 1.0,
+    avax: 1.0,
+    matic: 1.0,
+    eth: 1.0,
+  }
   if ([42220, 44787].includes(netId)) {
     try {
       // TODO: poof price, rcelo price
@@ -41,7 +48,7 @@ async function main() {
       )
 
       const celoPrices = {
-        celo: 1.0,
+        ...nativePrices,
         poof: 1.0,
         rcelo: rceloPrice,
         cusd: cusdPrice,
@@ -53,12 +60,9 @@ async function main() {
     } catch (e) {
       console.error('priceWatcher error', e)
     }
-  } else if ([4002, 250].includes(netId)) {
-    const ftmPrices = {
-      ftm: 1.0,
-    }
-    await redis.hmset('prices', ftmPrices)
-    console.log('Wrote following prices to redis', ftmPrices)
+  } else {
+    await redis.hmset('prices', nativePrices)
+    console.log('Wrote following prices to redis', nativePrices)
   }
 }
 
