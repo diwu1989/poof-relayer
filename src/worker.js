@@ -426,10 +426,10 @@ async function submitTx(job, retry = 0) {
       gasPrice,
       value: job.data.args[5],
     }
-    // const gas = await currentTx.estimateGas(params)
+    const gas = await currentTx.estimateGas(params)
     const receipt = await currentTx.send({
       ...params,
-      gas: 3e6,
+      gas,
     })
     await updateTxHash(receipt.transactionHash)
     console.log('Mined in block', receipt.blockNumber)
