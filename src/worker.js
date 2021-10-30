@@ -308,12 +308,17 @@ async function checkWithdrawV2Fee({ args, contract }) {
   const poof = new web3.eth.Contract(poofABI, contract)
   const unitPerUnderlying = await poof.methods.unitPerUnderlying().call()
 
+  let limit = gasLimits[jobType.WITHDRAW_V2]
+  // FTM override
+  if (netId === 4002) {
+    limit = 3e6
+  }
   const desiredFee = calculateFeeV2(
     debt.mul(toBN(unitPerUnderlying)).add(amount).sub(fee),
     Number(celoPrice),
     Number(poofServiceFee),
     gasPrice,
-    gasLimits[jobType.WITHDRAW_V2],
+    limit,
     toBN(unitPerUnderlying),
   )
   console.log(
