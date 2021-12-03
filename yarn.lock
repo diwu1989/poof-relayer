@@ -501,10 +501,10 @@
     fastfile "0.0.19"
     ffjavascript "^0.2.30"
 
-"@poofcash/poof-kit@^1.0.15":
-  version "1.0.36"
-  resolved "https://registry.yarnpkg.com/@poofcash/poof-kit/-/poof-kit-1.0.36.tgz#2c8cfb4bf5732fecc5e94f542a26b0bda420d74e"
-  integrity sha512-z0CII9zN3Z4mxQv2VVBIwcLAhqtptHn3LEFyZIbwQopNbbVWIpfOk4X8y9WpB/Gr++/r4NFROmF1Li39XQCQiw==
+"@poofcash/poof-kit@^1.0.37":
+  version "1.0.37"
+  resolved "https://registry.yarnpkg.com/@poofcash/poof-kit/-/poof-kit-1.0.37.tgz#58cabcf6ad732761b8d0595a3877ce63bdbf9e7d"
+  integrity sha512-Gcw+gQzMpFy+cmP85bwjmbQYhmcNaFd4AW2hwsi5gorhxZ4K0hvTj3MAbgY4m3zohLQT9AP1E3Tsj5S6nhrAXg==
   dependencies:
     "@celo/contractkit" "^1.2.4"
     "@types/bn.js" "^5.1.0"
@@ -520,7 +520,7 @@
     fflate "^0.7.1"
     fixed-merkle-tree "^0.3.4"
     gas-price-oracle "^0.2.2"
-    snarkjs "git+https://github.com/poofcash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5"
+    snarkjs "git+https://github.com/tornadocash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5"
     web3 "^1.2.8"
     web3-eth-contract "^1.5.1"
     web3-utils "^1.5.1"
@@ -5017,20 +5017,8 @@ slice-ansi@^2.1.0:
     r1csfile "0.0.32"
     readline "^1.3.0"
 
-"snarkjs@git+https://github.com/poofcash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5":
-  version "0.1.20"
-  resolved "git+https://github.com/poofcash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5"
-  dependencies:
-    big-integer "^1.6.43"
-    chai "^4.2.0"
-    escape-string-regexp "^1.0.5"
-    eslint "^5.16.0"
-    keccak "^2.0.0"
-    yargs "^12.0.5"
-
 "snarkjs@git+https://github.com/tornadocash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5":
   version "0.1.20"
-  uid "869181cfaf7526fe8972073d31655493a04326d5"
   resolved "git+https://github.com/tornadocash/snarkjs.git#869181cfaf7526fe8972073d31655493a04326d5"
   dependencies:
     big-integer "^1.6.43"

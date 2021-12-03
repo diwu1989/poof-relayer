@@ -21,7 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "@celo/contractkit": "^1.2.4",
-    "@poofcash/poof-kit": "^1.0.15",
+    "@poofcash/poof-kit": "^1.0.37",
     "@poofcash/poof-v2-kit": "^0.3.0-b",
     "@poofcash/poof-v2-kit-legacy": "npm:@poofcash/poof-v2-kit@^0.1.9",
     "@poofcash/tx-manager": "^0.3.0",
