@@ -1481,9 +1481,9 @@ circom_runtime@0.1.8:
     ffjavascript "0.2.10"
     fnv-plus "^1.3.1"
 
-"circomlib-torn@git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4", "circomlib@git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4":
+"circomlib-torn@git+https://github.com/poofcash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4", "circomlib@git+https://github.com/poofcash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4":
   version "0.0.20"
-  resolved "git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4"
+  resolved "git+https://github.com/poofcash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4"
   dependencies:
     blake-hash "^1.1.0"
     blake2b "^2.1.3"
@@ -1502,9 +1502,9 @@ circomlib@^0.5.4:
     ffjavascript "0.2.38"
     web3-utils "^1.3.0"
 
-"circomlib@git+https://github.com/poofcash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4":
+"circomlib@git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4":
   version "0.0.20"
-  resolved "git+https://github.com/poofcash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4"
+  resolved "git+https://github.com/tornadocash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4"
   dependencies:
     blake-hash "^1.1.0"
     blake2b "^2.1.3"
