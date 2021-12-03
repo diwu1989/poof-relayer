@@ -1,6 +1,6 @@
 const { isAddress, toChecksumAddress } = require('web3-utils')
 const { getInstance } = require('./utils')
-const { rewardAccount, netId, pools } = require('./config')
+const { rewardAccount, pools } = require('./config')
 
 const Ajv = require('ajv')
 const ajv = new Ajv({ format: 'fast' })
@@ -31,8 +31,7 @@ ajv.addKeyword('isKnownPool', {
   validate: (schema, data) => {
     try {
       return (
-        pools[netId].find(entry => entry.poolAddress.toLowerCase() === data) !==
-        null
+        pools.find(entry => entry.poolAddress.toLowerCase() === data) !== null
       )
     } catch (e) {
       return false
@@ -59,20 +58,17 @@ const addressType = {
 }
 const proofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{512}$' }
 const v2ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
-const v3WithdrawProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
-const v3InputRootProofType = {
-  type: 'string',
-  pattern: '^0x[a-fA-F0-9]{1600}$',
-}
-const v3OutputRootRootProofType = {
-  type: 'string',
-  pattern: '^0x[a-fA-F0-9]{1600}$',
-}
+const v3ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
+const v4ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{512}$' }
 const rewardArgType = { type: 'string', pattern: '^0x[a-fA-F0-9]{2176}$' }
 const encryptedAccountType = { type: 'string', pattern: '^0x[a-fA-F0-9]{392}$' }
 const encryptedAccountV2Type = {
   type: 'string',
   pattern: '^0x[a-fA-F0-9]{480}$',
+}
+const encryptedAccountV4Type = {
+  type: 'string',
+  pattern: '^0x[a-fA-F0-9]{560}$',
 }
 const bytes32Type = { type: 'string', pattern: '^0x[a-fA-F0-9]{64}$' }
 const instanceType = { ...addressType, isKnownContract: true }
@@ -325,6 +321,32 @@ const withdrawV3Args = {
   ],
 }
 
+const withdrawV4Args = {
+  ...withdrawV3Args,
+  properties: {
+    ...withdrawV3Args.properties,
+    extData: {
+      type: 'object',
+      properties: {
+        fee: bytes32Type,
+        recipient: addressType,
+        relayer: relayerType,
+        encryptedAccount: encryptedAccountV4Type,
+      },
+      additionalProperties: false,
+      required: ['fee', 'relayer', 'encryptedAccount', 'recipient'],
+    },
+  },
+  required: [
+    'amount',
+    'debt',
+    'unitPerUnderlying',
+    'extDataHash',
+    'extData',
+    'account',
+  ],
+}
+
 const withdrawV3Schema = {
   type: 'object',
   properties: {
@@ -333,13 +355,25 @@ const withdrawV3Schema = {
       type: 'array',
       maxItems: 3,
       mintItems: 3,
-      items: [
-        v3WithdrawProofType,
-        v3InputRootProofType,
-        v3OutputRootRootProofType,
-      ],
+      items: [v3ProofType, v3ProofType, v3ProofType],
     },
     args: withdrawV3Args,
+  },
+  additionalProperties: false,
+  required: ['proofs', 'contract', 'args'],
+}
+
+const withdrawV4Schema = {
+  type: 'object',
+  properties: {
+    contract: poolType,
+    proofs: {
+      type: 'array',
+      maxItems: 3,
+      mintItems: 3,
+      items: [v4ProofType, v4ProofType, v4ProofType],
+    },
+    args: withdrawV4Args,
   },
   additionalProperties: false,
   required: ['proofs', 'contract', 'args'],
@@ -351,6 +385,7 @@ const validateBatchReward = ajv.compile(batchRewardSchema)
 const validateMiningWithdraw = ajv.compile(miningWithdrawSchema)
 const validateWithdrawV2 = ajv.compile(withdrawV2Schema)
 const validateWithdrawV3 = ajv.compile(withdrawV3Schema)
+const validateWithdrawV4 = ajv.compile(withdrawV4Schema)
 
 function getInputError(validator, data) {
   validator(data)
@@ -385,6 +420,10 @@ function getWithdrawV3InputError(data) {
   return getInputError(validateWithdrawV3, data)
 }
 
+function getWithdrawV4InputError(data) {
+  return getInputError(validateWithdrawV4, data)
+}
+
 module.exports = {
   getTornadoWithdrawInputError,
   getMiningRewardInputError,
@@ -393,4 +432,5 @@ module.exports = {
 
   getWithdrawV2InputError,
   getWithdrawV3InputError,
+  getWithdrawV4InputError,
 }

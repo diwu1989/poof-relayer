@@ -5,6 +5,7 @@ const {
   getBatchRewardInputError,
   getWithdrawV2InputError,
   getWithdrawV3InputError,
+  getWithdrawV4InputError,
 } = require('./validator')
 const { postJob } = require('./queue')
 const { jobType } = require('./constants')
@@ -135,6 +136,34 @@ async function mintV3(req, res) {
   return res.json({ id })
 }
 
+async function withdrawV4(req, res) {
+  const inputError = getWithdrawV4InputError(req.body)
+  if (inputError) {
+    console.log('Invalid input:', inputError)
+    return res.status(400).json({ error: inputError })
+  }
+
+  const id = await postJob({
+    type: jobType.WITHDRAW_V3,
+    request: req.body,
+  })
+  return res.json({ id })
+}
+
+async function mintV4(req, res) {
+  const inputError = getWithdrawV4InputError(req.body)
+  if (inputError) {
+    console.log('Invalid input:', inputError)
+    return res.status(400).json({ error: inputError })
+  }
+
+  const id = await postJob({
+    type: jobType.MINT_V3,
+    request: req.body,
+  })
+  return res.json({ id })
+}
+
 module.exports = {
   relay,
   poofWithdraw,
@@ -149,4 +178,8 @@ module.exports = {
   // v3 endpoint
   withdrawV3,
   mintV3,
+
+  // v4 endpoint
+  withdrawV4,
+  mintV4,
 }

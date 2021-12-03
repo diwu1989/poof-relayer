@@ -31,7 +31,6 @@ const {
   poofServiceFee,
   miningServiceFee,
   pools,
-  treeAddresses,
   maxGasPrice,
 } = require('./config')
 const {
@@ -111,7 +110,6 @@ const getFetchTree = treeAddress => {
       } else if (
         currentJob.data.contract.toLowerCase() === treeAddress.toLowerCase()
       ) {
-        const contract = new web3.eth.Contract(poofABI, treeAddress)
         const update = await controllerV2.treeUpdate(
           args.account.outputCommitment,
           trees[treeAddress],
@@ -165,12 +163,12 @@ async function start() {
       tornadoProxyABI,
       poof.PoofProxy.address,
     )
-    for (const treeAddress of treeAddresses) {
+    for (const { poolAddress } of pools) {
       redisSubscribe.subscribe(
-        `treeUpdate:${treeAddress}`,
-        getFetchTree(treeAddress),
+        `treeUpdate:${poolAddress}`,
+        getFetchTree(poolAddress),
       )
-      await getFetchTree(treeAddress)()
+      await getFetchTree(poolAddress)()
     }
     controllerV1 = new ControllerV1({
       provingKeys: {
@@ -184,9 +182,14 @@ async function start() {
     controllerV2 = new ControllerV2({
       getSnarkJs: () => snarkjs,
       provingKeys: {
-        getTreeUpdateWasm: () => fs.readFileSync('./keys/TreeUpdate.wasm'),
-        getTreeUpdateZkey: () =>
-          fs.readFileSync('./keys/TreeUpdate_circuit_final.zkey'),
+        getTreeUpdateWasm: provingSystem =>
+          provingSystem === 1
+            ? fs.readFileSync('./keys/TreeUpdate.wasm')
+            : fs.readFileSync('./keys/TreeUpdate1.wasm'),
+        getTreeUpdateZkey: provingSystem =>
+          provingSystem === 1
+            ? fs.readFileSync('./keys/TreeUpdate_circuit_final.zkey')
+            : fs.readFileSync('./keys/TreeUpdate1_circuit_final.zkey'),
       },
     })
     queue.process(processJob)
@@ -290,14 +293,17 @@ async function checkMiningFee({ args }) {
 }
 
 async function checkWithdrawV2Fee({ args, contract }) {
-  const { symbol, decimals } = pools[netId].find(
+  const { symbol, decimals } = pools.find(
     entry => entry.poolAddress.toLowerCase() === contract.toLowerCase(),
   )
   const [fee, amount, debt] = [args.extData.fee, args.amount, args.debt].map(
     toBN,
   )
 
-  const celoPrice = await redis.hget('prices', symbol.toLowerCase())
+  const celoPrice = await redis.hget(
+    'prices',
+    symbol.split('_')[0].toLowerCase(),
+  )
   const gasPrice = Math.min(
     await redis.hget('gasPrices', 'min'),
     maxGasPrice,

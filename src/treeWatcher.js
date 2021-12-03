@@ -2,7 +2,7 @@ const MerkleTree = require('fixed-merkle-tree')
 const {
   redisUrl,
   wsRpcUrl,
-  treeAddresses,
+  pools,
   poof,
   creationBlockLookup,
 } = require('./config')
@@ -146,7 +146,7 @@ function initWeb3() {
   wsIdx = (wsIdx + 1) % wsUrlPool.length
 }
 
-const getInit = treeAddress => {
+const getInit = (treeAddress, merkleTreeHeight) => {
   return async function init() {
     try {
       console.log(`Initializing v2 tree updater for ${treeAddress}`)
@@ -158,8 +158,7 @@ const getInit = treeAddress => {
         creationBlockLookup[treeAddress] || 0,
         block,
       )
-      // TODO: HARDCODED 20
-      trees[treeAddress] = new MerkleTree(20, events, {
+      trees[treeAddress] = new MerkleTree(merkleTreeHeight || 20, events, {
         hashFunction:
           treeAddress === poof.PoofMiner.address
             ? poseidonHashTorn2
@@ -191,8 +190,8 @@ const getInit = treeAddress => {
 }
 
 initWeb3()
-for (const treeAddress of treeAddresses) {
-  getInit(treeAddress)()
+for (const { poolAddress, merkleTreeHeight } of pools) {
+  getInit(poolAddress, merkleTreeHeight)()
 }
 
 process.on('unhandledRejection', error => {
