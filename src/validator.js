@@ -61,8 +61,11 @@ const v2ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
 const v3ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
 const v4ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{512}$' }
 const rewardArgType = { type: 'string', pattern: '^0x[a-fA-F0-9]{2176}$' }
-const encryptedAccountType = { type: 'string', pattern: '^0x[a-fA-F0-9]{392}$' }
-const encryptedAccountType = {
+const v1EncryptedAccountType = {
+  type: 'string',
+  pattern: '^0x[a-fA-F0-9]{392}$',
+}
+const v2EncryptedAccountType = {
   type: 'string',
   pattern: '^0x[a-fA-F0-9]{560}$',
 }
@@ -108,7 +111,7 @@ const miningArgs = {
       type: 'object',
       properties: {
         relayer: relayerType,
-        encryptedAccount: encryptedAccountType,
+        encryptedAccount: v1EncryptedAccountType,
       },
       additionalProperties: false,
       required: ['relayer', 'encryptedAccount'],
@@ -183,7 +186,7 @@ const withdrawArgs = {
         fee: bytes32Type,
         recipient: addressType,
         relayer: relayerType,
-        encryptedAccount: encryptedAccountType,
+        encryptedAccount: v1EncryptedAccountType,
       },
       additionalProperties: false,
       required: ['fee', 'relayer', 'encryptedAccount', 'recipient'],
@@ -234,7 +237,7 @@ const withdrawV2Args = {
         recipient: addressType,
         relayer: relayerType,
         depositProofHash: bytes32Type,
-        encryptedAccount: encryptedAccountType,
+        encryptedAccount: v2EncryptedAccountType,
       },
       additionalProperties: false,
       required: [
@@ -279,7 +282,7 @@ const withdrawV3Args = {
         fee: bytes32Type,
         recipient: addressType,
         relayer: relayerType,
-        encryptedAccount: encryptedAccountType,
+        encryptedAccount: v2EncryptedAccountType,
       },
       additionalProperties: false,
       required: ['fee', 'relayer', 'encryptedAccount', 'recipient'],
@@ -317,31 +320,7 @@ const withdrawV3Args = {
   ],
 }
 
-const withdrawV4Args = {
-  ...withdrawV3Args,
-  properties: {
-    ...withdrawV3Args.properties,
-    extData: {
-      type: 'object',
-      properties: {
-        fee: bytes32Type,
-        recipient: addressType,
-        relayer: relayerType,
-        encryptedAccount: encryptedAccountType,
-      },
-      additionalProperties: false,
-      required: ['fee', 'relayer', 'encryptedAccount', 'recipient'],
-    },
-  },
-  required: [
-    'amount',
-    'debt',
-    'unitPerUnderlying',
-    'extDataHash',
-    'extData',
-    'account',
-  ],
-}
+const withdrawV4Args = withdrawV3Args
 
 const withdrawV3Schema = {
   type: 'object',
