@@ -62,11 +62,7 @@ const v3ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{1600}$' }
 const v4ProofType = { type: 'string', pattern: '^0x[a-fA-F0-9]{512}$' }
 const rewardArgType = { type: 'string', pattern: '^0x[a-fA-F0-9]{2176}$' }
 const encryptedAccountType = { type: 'string', pattern: '^0x[a-fA-F0-9]{392}$' }
-const encryptedAccountV2Type = {
-  type: 'string',
-  pattern: '^0x[a-fA-F0-9]{480}$',
-}
-const encryptedAccountV4Type = {
+const encryptedAccountType = {
   type: 'string',
   pattern: '^0x[a-fA-F0-9]{560}$',
 }
@@ -238,7 +234,7 @@ const withdrawV2Args = {
         recipient: addressType,
         relayer: relayerType,
         depositProofHash: bytes32Type,
-        encryptedAccount: encryptedAccountV2Type,
+        encryptedAccount: encryptedAccountType,
       },
       additionalProperties: false,
       required: [
@@ -283,7 +279,7 @@ const withdrawV3Args = {
         fee: bytes32Type,
         recipient: addressType,
         relayer: relayerType,
-        encryptedAccount: encryptedAccountV2Type,
+        encryptedAccount: encryptedAccountType,
       },
       additionalProperties: false,
       required: ['fee', 'relayer', 'encryptedAccount', 'recipient'],
@@ -331,7 +327,7 @@ const withdrawV4Args = {
         fee: bytes32Type,
         recipient: addressType,
         relayer: relayerType,
-        encryptedAccount: encryptedAccountV4Type,
+        encryptedAccount: encryptedAccountType,
       },
       additionalProperties: false,
       required: ['fee', 'relayer', 'encryptedAccount', 'recipient'],
