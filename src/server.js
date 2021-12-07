@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const status = require('./status')
 const controller = require('./controller')
 const { port, rewardAccount } = require('./config')
@@ -7,6 +8,11 @@ const { isAddress } = require('web3-utils')
 
 const app = express()
 app.use(express.json())
+app.use(
+  cors({
+    origin: '*',
+  }),
+)
 
 // Add CORS headers
 app.use((req, res, next) => {

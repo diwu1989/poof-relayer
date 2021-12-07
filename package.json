@@ -30,6 +30,7 @@
     "bull": "^3.12.1",
     "circomlib": "^0.5.4",
     "circomlib-torn": "git+https://github.com/poofcash/circomlib.git#3b492f9801573eebcfe1b6c584afe8a3beecf2b4",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "fixed-merkle-tree": "^0.4.0",
