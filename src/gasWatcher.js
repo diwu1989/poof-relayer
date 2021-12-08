@@ -35,7 +35,7 @@ async function getGasPrices() {
       console.error(`cant get minimum gas price: ${e.toString()}`)
     }
   } else {
-    gasPrices['min'] = Number(fromWei(await web3.eth.getGasPrice(), 'gwei'))
+    gasPrices['min'] = Number(fromWei(await web3.eth.getGasPrice(), 'gwei')) + 1
   }
   return gasPrices
 }
