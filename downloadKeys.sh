@@ -18,7 +18,7 @@ if [ ! -f keys/TreeUpdate1_circuit_final.zkey ]; then
 fi
 
 if [ ! -f keys/TreeUpdate1.wasm ]; then
-  wget -q https://poof.nyc3.digitaloceanspaces.com/TreeUpdate.wasm.gz -O keys/TreeUpdate1.wasm.gz
+  wget -q https://poofgroth.nyc3.digitaloceanspaces.com/TreeUpdate.wasm.gz -O keys/TreeUpdate1.wasm.gz
   gunzip keys/TreeUpdate1.wasm.gz
 fi
 
