@@ -56,6 +56,9 @@ let proxyContract
 const redis = new Redis(redisUrl)
 const redisSubscribe = new Redis(redisUrl)
 
+const GROTH = 0
+const PLONK = 1
+
 const getFetchTree = treeAddress => {
   return async function fetchTree() {
     const elements = await redis.get(`tree:${treeAddress}:elements`)
@@ -110,9 +113,13 @@ const getFetchTree = treeAddress => {
       } else if (
         currentJob.data.contract.toLowerCase() === treeAddress.toLowerCase()
       ) {
+        const isGroth = [jobType.WITHDRAW_V3, jobType.MINT_V3].includes(
+          currentJob.data.type,
+        )
         const update = await controllerV2.treeUpdate(
           args.account.outputCommitment,
           trees[treeAddress],
+          isGroth ? 0 : 1,
         )
         if (currentJob.data.type === jobType.WITHDRAW_V2) {
           const contract = new web3.eth.Contract(poofABI, treeAddress)
@@ -182,14 +189,16 @@ async function start() {
     controllerV2 = new ControllerV2({
       getSnarkJs: () => snarkjs,
       provingKeys: {
-        getTreeUpdateWasm: provingSystem =>
-          provingSystem === 1
+        getTreeUpdateWasm: provingSystem => {
+          return provingSystem === PLONK
             ? fs.readFileSync('./keys/TreeUpdate.wasm')
-            : fs.readFileSync('./keys/TreeUpdate1.wasm'),
-        getTreeUpdateZkey: provingSystem =>
-          provingSystem === 1
+            : fs.readFileSync('./keys/TreeUpdate1.wasm')
+        },
+        getTreeUpdateZkey: provingSystem => {
+          return provingSystem === PLONK
             ? fs.readFileSync('./keys/TreeUpdate_circuit_final.zkey')
-            : fs.readFileSync('./keys/TreeUpdate1_circuit_final.zkey'),
+            : fs.readFileSync('./keys/TreeUpdate1_circuit_final.zkey')
+        },
       },
     })
     queue.process(processJob)
