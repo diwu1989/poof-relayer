@@ -10,7 +10,7 @@ const { poseidonHash2, poseidonHashTorn2 } = require('./utils')
 const { toBN } = require('web3-utils')
 const Redis = require('ioredis')
 const redis = new Redis(redisUrl)
-const Web3 = require('web3')
+const { createAlchemyWeb3 } = require('@alch/alchemy-web3')
 const wsUrlPool = wsRpcUrl.split(',')
 const PoofBaseABI = require('../abis/poofBase.abi.json')
 
@@ -134,14 +134,7 @@ async function rebuild(contract) {
 
 function initWeb3() {
   const url = wsUrlPool[wsIdx]
-  web3 = new Web3(
-    new Web3.providers.WebsocketProvider(url, {
-      clientConfig: {
-        maxReceivedFrameSize: 100000000,
-        maxReceivedMessageSize: 100000000,
-      },
-    }),
-  )
+  web3 = createAlchemyWeb3(url)
   console.log('web3 url', url)
   wsIdx = (wsIdx + 1) % wsUrlPool.length
 }
