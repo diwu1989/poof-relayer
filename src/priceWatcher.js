@@ -31,11 +31,15 @@ async function main() {
       // Get cUSD price in CELO
       const exchangeUSD = await kit.contracts.getExchange(StableToken.cUSD)
       const exchangeEUR = await kit.contracts.getExchange(StableToken.cEUR)
+      const exchangeREAL = await kit.contracts.getExchange(StableToken.cREAL)
       const cusdPrice = Number(
         fromWei((await exchangeUSD.quoteGoldBuy(oneEth)).toString()),
       )
       const ceurPrice = Number(
         fromWei((await exchangeEUR.quoteGoldBuy(oneEth)).toString()),
+      )
+      const crealPrice = Number(
+        fromWei((await exchangeREAL.quoteGoldBuy(oneEth)).toString()),
       )
 
       // get rCELO price in CELO
@@ -53,6 +57,7 @@ async function main() {
         rcelo: rceloPrice,
         cusd: cusdPrice,
         ceur: ceurPrice,
+        creal: crealPrice,
       }
 
       await redis.hmset('prices', celoPrices)

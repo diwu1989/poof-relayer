@@ -21,9 +21,9 @@
   "license": "MIT",
   "dependencies": {
     "@alch/alchemy-web3": "^1.1.9",
-    "@celo/contractkit": "^1.2.4",
+    "@celo/contractkit": "^1.5.2",
     "@poofcash/poof-kit": "^1.0.37",
-    "@poofcash/poof-v2-kit": "^0.3.0-g",
+    "@poofcash/poof-v2-kit": "^0.3.0-i",
     "@poofcash/poof-v2-kit-legacy": "npm:@poofcash/poof-v2-kit@^0.1.9",
     "@poofcash/tx-manager": "^0.3.0",
     "ajv": "^6.12.5",
